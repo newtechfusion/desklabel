@@ -1,0 +1,23 @@
+RewriteEngine On
+RewriteBase /
+
+#RewriteCond %{HTTP_HOST} ([^\.]+)\.[^\.]{2,4}$
+#RewriteCond %{REQUEST_URI} ^/assets/!%1/.*
+#RewriteRule .* - [R=404,L]
+
+RewriteCond %{REQUEST_URI} ^/Test\.html$ [NC]
+RewriteRule . - [L]
+
+RewriteCond %{HTTP_HOST} !^www [NC] [AND]
+RewriteCond %{HTTP_HOST} !^([^\.]+)\.([^\.]+)\.[^\.]{2,4}$
+RewriteRule ^(.*) http://www.%{HTTP_HOST}/$1 [R=301,L]
+
+RewriteCond %{HTTP_HOST} ([^\.]+)\.[^\.]{2,4}$
+RewriteRule ^(bootstrap|images|LayerSlider|css|js|favicon.ico|robots.txt)(.*)$ /assets/%1/$1$2 [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
+
+RewriteCond %{QUERY_STRING} .
+RewriteRule ^$ /? [L]
