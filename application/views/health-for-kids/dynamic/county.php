@@ -47,8 +47,7 @@
 			  index = index || 0;
 			  callable=callable||null;
 			  jQuery.post(window.href,{ajax:true,name:callable,value:index},function(data) {
-					
-					jQuery('#viewcontainer').html('');
+					jQuery('#viewcontainer').html(' ');
 					jQuery('#viewcontainer').html(data.results);
 			  },"json");
 		  }		
@@ -65,7 +64,7 @@
                 <span class="span12 border_separator"> </span> </div>
               <span class="row-fluid separator_border">
               <div class="row-fluid" >
-                <?php $this->load->view('breadcrumb'); ?>
+                <?php //$this->load->view('breadcrumb'); ?>
               </div>
               <div class="row-fluid" >
                 <div id="viewcontainer">
@@ -77,7 +76,7 @@
 						
              ?>
                   <div class="border-box">
-                    <h4><a href="<?php echo $_SERVER['REQUEST_URI'].'/'.clean($agency['name']).'/'.$agency['id']?>"><?php echo $agency['name']?></a></h4>
+                    <h5><a href="<?php echo $_SERVER['REQUEST_URI'].'/'.clean($agency['name']).'/'.$agency['id']?>"><?php echo $agency['name']?></a></h5>
                     <p> <b>Address:</b><span class="agency_address"><?php echo $agency['address']?></span><br>
                       <b>Phone:</b><span><?php echo $agency['phone']?></span> </p>
                   </div>
@@ -108,20 +107,29 @@
 						$count=0;
 						$match=FALSE;
 						foreach($this->allcontent as $city): 
-						if(in_array($city,$this->data['allcity'])){
+						if(in_array(upc($city),$this->data['allcity'])){
 						$match=TRUE;
 						 $clean= preg_replace('/[^A-Za-z0-9\-]/', ' ',$city);
 					     $clean=str_replace(array('',' ',NULL),'-',strtolower($clean)); 
 						echo '<li>'.anchor(segment().'/'.$clean.'/'.implode('-',abbr(false)),ucwords($city.', '._stateToShort(segment()).' '.$urltext)).'</li>';
 						}
 						endforeach; 
+						if(!$match)echo'<script type="text/javascript"> ex();</script>';
+						$match=FALSE;
+						$countslug=array();
 						echo '</ul></div><div id="nearby_counties" class="tab-pane"><ul class="near_by">';
 						foreach ($this->data['nearconunties'] as $county):
+						if(!in_array($county->county_slug,$countslug)){
+						$countslug[]=$county->county_slug;
+						if(in_array(upc($county->city_name),$this->data['allcity'])){
+						$match=TRUE;
 						echo '<li>'.anchor($county->state_slug.'/'.$county->county_slug.'-county/'.implode('-',abbr(false)),
 						ucwords($county->county_name.' County, '.$county->state_abbr.' '.$urltext)).'</li>';
-						$count++;	
+						 }
+						}
 						endforeach;
-						if(!$match)echo'<script type="text/javascript"> ex();</script>';
+						unset($countslug);
+						if(!$match)echo'<script type="text/javascript"> hidecountiestab();</script>';
                     ?>
                       </ul>
                     </div>

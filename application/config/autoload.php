@@ -109,7 +109,7 @@ $autoload['language'] = array('html');
 |
 */
 
-$autoload['model'] = array('functions','basics','geo','global_copy','query','http');
+$autoload['model'] = array('functions','basics','geo','global_copy','query');
 
 
 /* End of file autoload.php */

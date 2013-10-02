@@ -212,4 +212,35 @@ class Query extends CI_Model  {
 		")->result();
 	}
 }
+
+function  select($tablename,$where='',$feild='',$limit='',$order_by='',$distinct=FALSE,$likes=NULL,$in=NULL){
+	 		
+		 if(!empty($feild)) $this->db->select($feild);
+		 if(empty($feild))  $this->db->select();
+		 if($distinct)$this->db->distinct();
+		 if(!empty($where)) $this->db->where($where); 
+		if(!empty($likes) && is_array($likes)):
+		  foreach($likes as $like):
+			 $keys=array_keys($like);
+			 $this->db->like($keys[0],$like[$keys[0]]);
+		  endforeach;
+		endif;
+		$this->db->join('sh_geo.admin2s_cities','admin2s_cities.city_id = cities.id');
+		if(!empty($in))$this->db->where_in(key($in),$in[key($in)]);	
+		if(!empty($order_by)) $this->db->order_by($order_by);
+		if(!empty($limit)) 
+		{ 
+			if(is_array($limit))
+			{	
+			$this->db->limit($limit[1],$limit[0]);
+			}else{
+				$this->db->limit($limit);
+				}
+		}
+		 $this->db->from('sh_geo.'.$tablename);
+		 $query = $this->db->get();
+		  return $query->result_array();
+	}
+
+
 ?>

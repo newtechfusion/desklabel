@@ -8,33 +8,7 @@ class Main_Controller extends LIST_All {
 	}
 	
 	
-	public function map()
-	{
-		
-		$this->load->library('googlemaps');
-		$this->load->helper('gmap_helper');
-		$config=make_map_stylish();
-	    $config['map_types_available']=map_types();
-		$this->view='geo';
-		$this->location='dynamic/';
-		$config['center'] =func_get_arg(1);
-		$config['map_width']='400px';
-		$this->googlemaps->initialize($config);
-		$marker=array();
-		if(func_num_args()):
-		if(is_array(func_get_arg(0))):
-		 foreach(func_get_arg(0)as $object):
-			$marker=get_marker_info($object);
-			$this->googlemaps->add_marker($marker);
-		endforeach;
-		else:
-		$marker['position']=func_get_arg(1);
-		$this->googlemaps->add_marker($marker);
-		endif;
-		endif;
-		$data['map']=$this->googlemaps->create_map();
-		return $this->load->view($this->location.$this->view,$data,true);
-	}
+	
 	public function content($object)
 	{
 	foreach($object as $k=>$value){
@@ -60,6 +34,7 @@ class Main_Controller extends LIST_All {
 	
 	public function google_data($limit=NULL,$initial=FALSE,$inarray=NULL)
 	{ 
+	
 		$cleantext=str_replace('-',' ',segment(2));
 		$where=(empty($inarray))?array('LTRIM(RTRIM(city))'=>$cleantext):NULL;
 		return $this->http->select('google_data',$where,
@@ -75,7 +50,12 @@ class Main_Controller extends LIST_All {
 		$this->getkeyword('keyword'));
 	}	
 	
-	
+	public function getallcity($limit=NULL)
+	{ 
+		$limit=(!empty($limit))?$limit:NULL;
+		return $this->http->select('google_data',NULL,array('city'),$limit,"city",TRUE,
+		$this->getkeyword('keyword'));
+	}	
 	function county($state, $county) {
 		$clean=trim(str_replace(array('-county','-'),' ',$county));
 		$this->breadcrumb[]=array('href'=>base_url().segment().'/'.implode('-',abbr(FALSE)),'text'=>ucwords(segment().' '.implode(' ',abbr(FALSE))));
@@ -87,21 +67,31 @@ class Main_Controller extends LIST_All {
 		foreach($this->query->cities_in_county() as $cities):
 				$this->allcontent[]=$cities->city_name;
 		endforeach;
-	    $data['nearconunties']=$this->query->nearby_counties();
-		$data['allcity']=$this->content($this->getcity());
+		$data['nearconunties']=$this->query->nearby_counties();
+		$data['allcity']=$this->content($this->getallcity());
 		$this->data=$data;
 	}
 	
 	
 	function state_counties($state, $city=FALSE) {
-		$this->geo->state_info($state);
+		/*$this->geo->state_info($state);
 		$this->map->state();
 		$this->query->state_stats();
 		$this->copy->state_page();
 		if($city) $this->data=$this->query->cities_in_state() ;
-		return $this->copy->county_link_pack($this->query->counties_in_state());
-	
+		return $this->copy->county_link_pack($this->query->counties_in_state());*/	
 		//$this->data->schools = $this->copy->school_link_pack($this->query->schools_in_state());
+		
+		/* echo '<pre>';print_r($this->geo->Geoselect('cities',array('a1.code'=>_stateToShort($state)),
+		array('county.name','county.slug as county_slug','a1.code','a1.slug','admin2s_cities.admin2_id','cities.name as city_name'),
+ 		FALSE,FALSE,TRUE,FALSE,
+		array('cities.name'=>$this->content($this->getcity()),
+		)));die;*/
+		return $this->geo->Geoselect('cities',array('a1.code'=>_stateToShort($state)),
+		array('county.name','county.slug as county_slug','a1.code','a1.slug','admin2s_cities.admin2_id','cities.name as city_name'),
+ 		FALSE,FALSE,TRUE,FALSE,
+		array('cities.name'=>$this->content($this->getcity()),
+		));
 	
 		
 	}

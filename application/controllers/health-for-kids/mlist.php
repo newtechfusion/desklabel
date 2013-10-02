@@ -4,6 +4,7 @@ class Mlist extends Main_Controller {
 	 function __construct()
     {
         parent::__construct();	
+		$this->load->model('http');
 		$this->data=new stdClass();	
 				
 	}
@@ -61,6 +62,7 @@ class Mlist extends Main_Controller {
 	} */
 	function citiesincounty()
 	{
+		
 		$this->view='county';
 		$this->next_page=$this->per_page;
 		$param=TRUE;
@@ -70,9 +72,10 @@ class Mlist extends Main_Controller {
 			$param=FALSE;
 			$this->next_page=$this->input->post('value');	
 		}
+		$gdata=$this->google_data(array($this->next_page,$this->per_page),$param,array('city'=>$this->allcontent));
 		
-		$gdata=$this->google_data($this->next_page,$param,array('city'=>$this->allcontent));
-		$data=array('data'=>$gdata,'partition'=>round(count($gdata)/2),'items'=>count($this->google_data()));
+		$data=array('data'=>$gdata,'partition'=>round(count($gdata)/2),
+		'items'=>count($this->google_data(NULL,FALSE,array('city'=>$this->allcontent))));
 		if($this->input->post('ajax',FALSE))
 		{
 			$this->view ='pagination';
@@ -83,23 +86,27 @@ class Mlist extends Main_Controller {
 		}
 		
 		
-		$this->getTemplate();
+		$this->getTemplate($data);
 	}	
 	
-	function geo($arg=NULL)
+	function geo($state,$city,$community)
 	{
 		$this->view='community';
 		$this->next_page=0;
-		//$param=TRUE;
-		$this->breadcrumb[]=array('href'=>segment().'/'.implode('-',abbr(FALSE)),'text'=>ucwords(segment().' '.implode(' ',abbr(FALSE))));
-		$this->breadcrumb[]=array('text'=>ucwords(str_replace('-',' ',segment(2)).' '.upc(_stateToShort(segment())).', '.implode(' ',abbr(FALSE))));
-		if($this->input->post('ajax', FALSE)) $this->next_page=$this->input->post('value');
+		$this->breadcrumb[]=array('href'=>bradcrumburl($state,$community),'text'=>text($state.' '.$community,TRUE));
+		$this->breadcrumb[]=array('text'=>text($city.' '._stateToShort($state).', '.$community,TRUE));
+		if($this->input->post('ajax', FALSE))
+		{
+			$this->next_page=$this->input->post('value');	
+		}
 		$gdata=$this->google_data(array($this->next_page,$this->per_page));
-		$data=array('data'=>$gdata,'partition'=>round(count($gdata)/2)
-		,'nearcitypack'=>$this->nearby_city(segment(),str_replace('-',' ',segment(2))),
-		'counties'=>$this->state_counties(segment()),
-		'allcity'=>$this->content($this->getcity()),
-		'items'=>count($this->google_data()));
+		$data=array(
+					'data'=>$gdata,'partition'=>round(count($gdata)/2),
+					'nearcitypack'=>$this->nearby_city($state,text($city)),
+					'counties'=>$this->state_counties($state),
+					'allcity'=>$this->content($this->getallcity()),
+					'items'=>count($this->google_data()),
+			  );
 		if($this->input->post('ajax',FALSE) )
 		{
 			$this->view ='pagination';
@@ -112,8 +119,7 @@ class Mlist extends Main_Controller {
 					
 	}
 	
-	function detail(){
-		
+	function detail($s,$c,$a){
 		
 		$this->view='detail';
 		$this->allcontent=$this->http->select('google_data',
@@ -122,10 +128,10 @@ class Mlist extends Main_Controller {
  		1,NULL,FALSE,NULL
 		);
 		$content=$this->allcontent[0];
-        $this->breadcrumb[]=array('href'=>base_url().segment().'/'.segment(3),'text'=>ucwords(segment().' '.$content['keyword']));
-		$this->breadcrumb[]=array('href'=>base_url().segment().'/'.$content['city'].'/'.segment(3),
-		'text'=>$content['city'].' '.ucwords(upc(_stateToShort(segment())).', '.$content['keyword']));
-		$this->breadcrumb[]=array('text'=>ucwords($content['name']));
+        $this->breadcrumb[]=array('href'=>bradcrumburl($s,$a),'text'=>text($s.' '.$content['keyword'],TRUE));
+		$this->breadcrumb[]=array('href'=>bradcrumburl($s,$a,$c),
+		'text'=>text($content['city'].' '.upc(_stateToShort($s)).', '.$content['keyword'],TRUE));
+		$this->breadcrumb[]=array('text'=>text($content['name']));
 		$this->load->library('googlemaps');
 		$this->load->helper('gmap_helper');
 		$config=make_map_stylish();
@@ -137,8 +143,7 @@ class Mlist extends Main_Controller {
 		$marker=array();
 		$marker['position']=$this->allcontent[0]['address'];
 		$this->googlemaps->add_marker($marker);
-		$data=array('map'=>$this->googlemaps->create_map(),'nearcitypack'=>$this->nearby_city(segment()
-		,$this->uri->segment(2)),'counties'=>$this->state_counties(segment()));
+		$data=array('map'=>$this->googlemaps->create_map(),);
 		$this->getTemplate($data);
 		
 	}

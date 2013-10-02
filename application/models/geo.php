@@ -206,6 +206,7 @@ class Geo extends CI_Model {
 				SELECT DISTINCT county.id AS county_id
 				FROM sh_geo.admin2s county
 					LEFT OUTER JOIN sh_geo.admin1s state ON state.id = county.admin1_id
+					
 					$inner_join
 				WHERE
 					state.is_active = 1
@@ -224,7 +225,15 @@ class Geo extends CI_Model {
 		return $return;
 	}
 
-
+	function get_cities_id($cities){
+		$return = $this->db->query("
+			SELECT DISTINCT city.id AS city_id
+			FROM sh_geo.cities city where city.name IN('ALABASTER','ALBERTVILLE','ALEXANDER CITY')
+		")->result();	
+		$this->data = $return;
+		return $return;
+	}
+	
 	function cities_in_state($state_data, $inner_join="", $limit=20){
 		$order_by = isset($this->order_by) ? $this->order_by : "city.population DESC";
 		$return = $this->db->query("
@@ -244,7 +253,7 @@ class Geo extends CI_Model {
 				FROM sh_geo.cities city
 					LEFT OUTER JOIN sh_geo.admin1s state ON state.id = city.admin1_id
 					LEFT OUTER JOIN sh_geo.cities_postal_codes ON cities_postal_codes.city_id = city.id
-					$inner_join
+					LEFT INNER JOIN sh_geo.admin2s_cities  ON admin2s_cities.city_id=city.id	
 				WHERE
 					state.is_active = 1
 					AND city.is_active = 1
@@ -306,7 +315,38 @@ class Geo extends CI_Model {
 	// ---------------------------------------------------------------------------------------------------------------------
 
 
-
+		function  Geoselect($tablename,$where='',$feild='',$limit='',$order_by='',$distinct=FALSE,$likes=NULL,$in=NULL){	
+		 if(!empty($feild)) $this->db->select($feild);
+		 if(empty($feild))  $this->db->select();
+		 if($distinct)$this->db->distinct();
+		 if(!empty($where)) $this->db->where($where); 
+		if(!empty($likes) && is_array($likes)):
+		  foreach($likes as $like):
+			 $keys=array_keys($like);
+			 $this->db->like($keys[0],$like[$keys[0]]);
+		  endforeach;
+		endif;
+		$this->db->join('sh_geo.admin2s_cities','admin2s_cities.city_id = cities.id');
+		$this->db->join('sh_geo.admin2s county','county.id = admin2s_cities.admin2_id');
+		$this->db->join('sh_geo.admin1s a1','a1.id = cities.admin1_id');
+		
+	
+		if(!empty($in))$this->db->where_in(key($in),$in[key($in)]);	
+		if(!empty($order_by)) $this->db->order_by($order_by);
+		if(!empty($limit)) 
+		{ 
+			if(is_array($limit))
+			{	
+			$this->db->limit($limit[1],$limit[0]);
+			}else{
+				$this->db->limit($limit);
+				}
+		}
+		 $this->db->from('sh_geo.'.$tablename);
+		 $query = $this->db->get();
+		  return $query->result_array();
+	}
+	
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	// COUNTY
@@ -333,6 +373,7 @@ class Geo extends CI_Model {
 					LEFT OUTER JOIN sh_geo.admin2s_cities ON admin2s_cities.city_id = city.id
 					LEFT OUTER JOIN sh_geo.admin2s county ON county.id = admin2s_cities.admin2_id
 					LEFT OUTER JOIN sh_geo.cities_postal_codes ON cities_postal_codes.city_id = city.id
+					
 					$inner_join
 				WHERE
 					city.is_active = 1
@@ -508,6 +549,7 @@ class Geo extends CI_Model {
 				a2.id AS county_id,
 				a2.name AS county_name,
 				a2.slug AS county_slug,
+				cities.name AS city_name,
 				a2.lat,
 				a2.lon,
 				a2.population,
@@ -529,6 +571,8 @@ class Geo extends CI_Model {
 				LIMIT $limit
 			) sub_query
 				LEFT OUTER JOIN sh_geo.admin2s a2 ON a2.id = sub_query.county_id
+				LEFT OUTER JOIN sh_geo.admin2s_cities aaa ON aaa.admin2_id=a2.id
+				LEFT OUTER JOIN sh_geo.cities cities ON cities.id=aaa.city_id
 				LEFT OUTER JOIN sh_geo.admin1s a1 ON a1.id = a2.admin1_id
 			WHERE
 				a1.is_active = 1
@@ -537,6 +581,15 @@ class Geo extends CI_Model {
 		")->result();
 		return $return;
 	}
+
+
+		
+
+
+
+
+
+
 
 
 	function nearby_cities($city_data, $inner_join="", $limit=20, $lat_lon_distance=2.0){

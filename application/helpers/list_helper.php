@@ -55,6 +55,22 @@ function _containsState($string=NULL){
 			return $state_list;
 }
 
+function text($str=NULL,$upc=FALSE,$modifier='-',$replace=' ')
+{
+	if(is_string($str) && !empty($str))  
+	{
+		$string=str_replace($modifier,$replace,$str);
+		if($upc) $string=ucwords($string);
+		return $string;
+	}
+}
+function bradcrumburl($s,$a,$c=NULL)
+{
+	$url=base_url().$s.'/';
+    if(!empty($c)) $url.=$c.'/';
+	$url.=$a;
+	return $url;
+}
 function segment($part=NULL){
 	 $CI =& get_instance(); 
 	 $segment=$CI->uri->segment_array();
@@ -73,13 +89,19 @@ function abbr($abbr=TRUE){
 	return $array;
 	
 	}
-function clean($str,$upper=FALSE){
-	 $clean=str_replace('-',' ',$str);
-	 if($upper):  
-	 $clean=ucwords($clean);
-	 else: $clean=strtolower($clean);
-	 endif;
-	 return $clean;
+function clean($str=NULL,$upc=FALSE,$modifier=' ',$replace='-'){
+	 if(is_string($str) && !empty($str))  
+	{
+		$str=preg_replace('/[^" "A-Za-z0-9\-]/','',$str);
+		$string=str_replace($modifier,$replace,$str);
+		if($upc):
+			$string=ucwords($string);
+		else:
+			$string=strtolower($string);
+		endif;
+		
+		return $string;
+	}
 	}
 	
 function upc($str){

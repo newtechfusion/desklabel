@@ -8,7 +8,7 @@
 		?>
         <?=ucwords($text[1])?>
       </h1>
-      <h2 class="title_desc"> 
+      <h2 class="title_desc">
         <?php $this->load->view('breadcrumb'); ?>
       </h2>
     </div>

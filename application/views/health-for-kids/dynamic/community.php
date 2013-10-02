@@ -72,12 +72,13 @@ function load_result(index,callable) {
 						if(!empty($data)){
                         foreach($data as $agency):
                         if($count==$partition|| $count==0) echo '<div class="span6">';
-						$clean = preg_replace('/[^A-Za-z0-9\-]/','-',$agency['name']);
-					   	$clean=str_replace(array('',' ',NULL,',',"'"),'-',$clean); 
-						
-             ?>
+				 ?>
                 <div class="border-box">
-                  <h4><a href="<?php echo $_SERVER['REQUEST_URI'].'/'.$clean.'/'.$agency['id']?>"><?php echo ucwords(clean($agency['name']))?></a></h4>
+                  <h5>
+                  	<a href="<?php echo $_SERVER['REQUEST_URI'].'/'.clean($agency['name']).'/'.$agency['id']?>">
+				  		<?php echo clean($agency['name'],TRUE,'-',' ')?>
+                 	 </a>
+                  </h5>
                   <p> <b>Address:</b><span class="agency_address"><?php echo $agency['address']?></span><br>
                     <b>Phone:</b><span><?php echo $agency['phone']?></span> </p>
                 </div>
@@ -98,7 +99,7 @@ function load_result(index,callable) {
                     <?=$this->lang->line('nearcity')?>
                     </a></li>
                   <li id="counties"><a data-toggle="tab" href="#nearby_counties">
-                    <?=$this->lang->line('nearcounty')?>
+                    Counties In <?php echo ucfirst(segment())?> 
                     </a></li>
                 </ul>
                 <div class="row-fluid">
@@ -107,8 +108,11 @@ function load_result(index,callable) {
                       <ul class="near_by">
                         <?php
 						$match=FALSE;
+						$citymatch=FALSE;
+						$countymatch=FALSE;
+						
 						foreach ($nearcitypack as $near):
-						if(in_array($near->city_name,$allcity)){
+						if(in_array(upc($near->city_name),$allcity)){
 						 $clean= preg_replace('/[^A-Za-z0-9\-]/', ' ',$near->city_name);
 					     $clean=str_replace(array('',' ',NULL),'-',$near->city_name); 
 						$match=TRUE;
@@ -117,11 +121,23 @@ function load_result(index,callable) {
 						}
 						endforeach;
 						echo '</ul></div><div id="nearby_counties" class="tab-pane"><ul class="near_by">';
-						if(!$match)echo'<script type="text/javascript"> ex();</script>';
+						if(!$match){echo'<script type="text/javascript"> ex();</script>';$citymatch=TRUE;}
+						$match=FALSE;
+						$countslug=array();
 						foreach ($counties as $county):
-						$text=(strpos($county->text,'Schools'))? str_replace('Schools','',$county->text):$county->text;
-						echo '<li>'.anchor($county->href.'/'.implode('-',abbr(false)),ucwords($text.' '.$urltext)).'</li>';
+						if(!in_array($county['slug'],$countslug)){
+						$countslug[]=$county['slug'];
+						if(in_array(upc($county['city_name']),$allcity)){
+						$match=TRUE;
+				        echo '<li>'.anchor($county['slug'].'/'.$county['county_slug'].'-county/'.implode('-',abbr(false)),
+						ucwords($county['name'].' County'.', '.$county['code'].' '.$urltext)).'</li>';
+						 }
+						}
 						endforeach;
+						unset($countslug);
+						if(!$match){echo'<script type="text/javascript"> hidecountiestab();</script>';$countymatch=TRUE;}
+						
+						if($citymatch && $countymatch) echo'<script type="text/javascript"> hidetab();</script>';
                   ?>
                       </ul>
                     </div>

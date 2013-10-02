@@ -75,8 +75,8 @@ $route[$state.'/'.$slug.'-county/'.$list]	    = "mlist/citiesincounty";
 $route[$modifier]							    = "main/modifier/$1";
 $route[$list]								    = "mlist";
 $route[$state.'/'.$list]					    = "mlist/city";
-$route[$state.'/'.$slug.'/'.$list]		            = "mlist/geo";
-$route[$state.'/(:any)/'.$list.'/(:any)']		= "mlist/detail";
+$route[$state.'/'.$slug.'/'.$list]		        = "mlist/geo/$1/$2/$3";
+$route[$state.'/(:any)/'.$list.'/(:any)']		= "mlist/detail/$1/$2/$3/$4/$5";
 $route[$state.$modifier]						= "main/state/$1/$2";
 
 $route[$state.'/'.$number.$modifier]			= "main/zip/$1/$2/$3";

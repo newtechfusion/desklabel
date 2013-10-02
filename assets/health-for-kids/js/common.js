@@ -9,3 +9,12 @@ function ex(){
 	
 	
 	}
+	
+function hidecountiestab(){
+	jQuery("#counties").css("display","none");
+	
+}
+function hidetab(){
+	jQuery(".tab-content").css("display","none");
+	
+}

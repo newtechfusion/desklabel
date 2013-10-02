@@ -11,7 +11,7 @@ p { font-family: 'Open Sans'; line-height: 18px ; font-size: 12px; color: #66666
  label, input, button, select, textarea { font-size: 12px;  } 
  h1 { font-size: 20px; color: #444444;  } 
  h2 { font-size: 16px; color: #444444;  } 
- .title_desc { font-size: 16px; color: #8a8a8a;  } 
+ .title_desc { font-size: 14px; color: #8a8a8a;  } 
  h3 { font-size: 14px; color: #444444;  } 
  .menu li a { font-size: 14px; color: #444444;  } 
  .accordion-heading a { font-size: 14px;  } 

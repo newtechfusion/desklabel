@@ -8,7 +8,7 @@
 						
              ?>
                 <div class="border-box">
-                  <h4><a href="<?php echo $_SERVER['REQUEST_URI'].'/'.$clean.'/'.$agency['id']?>"><?php echo ucwords(clean($agency['name']))?></a></h4>
+                  <h5><a href="<?php echo $_SERVER['REQUEST_URI'].'/'.$clean.'/'.$agency['id']?>"><?php echo ucwords(clean($agency['name']))?></a></h5>
                   <p> <b>Address:</b><span class="agency_address"><?php echo $agency['address']?></span><br>
                     <b>Phone:</b><span><?php echo $agency['phone']?></span> </p>
                 </div>

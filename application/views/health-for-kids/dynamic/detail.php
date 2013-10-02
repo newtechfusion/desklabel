@@ -46,39 +46,7 @@
 
                         </span>
 
-                         <ul  class="nav nav-tabs">   
-                <li id="cities" class="active"><a data-toggle="tab" tabindex="-1" href="#nearby_cities">
-                  <?=$this->lang->line('nearcity')?>
-                  </a></li>
-                  
-                  <li id="counties"><a data-toggle="tab" href="#nearby_counties">
-                 	 <?=$this->lang->line('nearcounty')?>
-                  </a></li>
-               
-              </ul>
-              <div class="row-fluid">
-                <div class="tab-content link_pack">
-                  <div id="nearby_cities" class="tab-pane active">
-                    <ul class="near_by">
-                      <?php
-						$match=FALSE;
-						foreach ($nearcitypack as $near):
-						//if(in_array($near->city_name,$allcity)){
-						$match=TRUE;
-						$clean= preg_replace('/[^A-Za-z0-9\-]/', ' ',$near->city_name);
-					     $clean=str_replace(array('',' ',NULL),'-',$near->city_name);
-						echo '<li>'.anchor(segment().'/'.strtolower($clean).'/'.implode('-',abbr(false)),
-						ucwords($near->city_name).', '.$near->state_abbr.' '.$urltext).'</li>';
-						//}
-						endforeach;
-						echo '</ul></div><div id="nearby_counties" class="tab-pane"><ul class="near_by">';
-						 /*?>if(!$match)echo'<script type="text/javascript"> ex();</script>';<?php */
-						foreach ($counties as $county):
-						$text=(strpos($county->text,'Schools'))? str_replace('Schools','',$county->text):$county->text;
-						echo '<li>'.anchor($county->href.'/'.implode('-',abbr(false)),ucwords($text.' '.$urltext)).'</li>';
-						endforeach;
-                  ?> 
-                    </ul>
+                       
                             </div>
                         </div>
                     </div>
